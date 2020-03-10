@@ -1,0 +1,14 @@
+{
+  "name": "later",
+  "version": "1.0.0",
+  "description": "An app to extract readable text to read later",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Juan Lengyel",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
