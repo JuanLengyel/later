@@ -27,7 +27,7 @@ class Article {
   }
 
   // Delete an article indicating the article id
-  static delete(id, db) {
+  static delete(id, cb) {
     if (!id) cb(new Error('Please provide an id'));
     const sql = 'DELETE FROM articles WHERE id = ?';
     db.run(sql, id, cb);
