@@ -4,6 +4,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 // Import database model definition
 const Article = require('./db').Article;
+// Import readability module to get a readable version of the stored articles
+const read = require('node-readability');
 
 // Instance express as the main holder of the application
 const app = express();
@@ -36,9 +38,15 @@ app.get('/articles/:id', (req, res, next) => {
 
 // POST HTTP method to store a new article
 app.post('/articles', (req, res, next) => {
-  const article = { title: req.body.title };
-  articles.push(article);
-  res.send(article);
+  const url = req.body.url;
+
+  read(url, (err, result) => {
+    if (err || !result) return res.status(500).send('Error downloading article');
+    Article.create({ title: result.title, content: result.content }, (err) => {
+      if (err) return next(err);
+      res.send({ 'message' : `Stored article from URL: ${url}` });
+    });
+  });
 });
 
 // DELETE HTTP method to delete a single stored article
@@ -46,7 +54,7 @@ app.delete('/articles/:id', (req, res, next) => {
   const id = req.params.id;
   Article.delete(id, (err) => {
     if (err) return next(err);
-    res.send({ 'message' : `Deleted article with id : ${id}` });
+    res.send({ 'message' : `Deleted article with id: ${id}` });
   });
 });
 
