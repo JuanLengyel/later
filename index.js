@@ -2,12 +2,11 @@
 const express = require('express');
 // Import body-parser to interpret json incoming to the server
 const bodyParser = require('body-parser');
+// Import database model definition
+const Article = require('./db').Article;
 
 // Instance express as the main holder of the application
 const app = express();
-
-// Array used to store articles
-const articles = [{title: 'Yo Momma'}];
 
 // Set 'port' as an application property. Defined by env variables. If not, default to 3000
 app.set('port', process.env.PORT || 3000);
@@ -20,14 +19,19 @@ app.use(bodyParser.urlencoded({ extended: true}));
 
 // GET HTTP method to retrieve all stored articles
 app.get('/articles', (req, res, next) => {
-  res.send('OK');
+  Article.all((err, articles) => {
+    if (err) return next(err);
+    res.send(articles);
+  });
 });
 
 // GET HTTP method to retrieve a single stored article
 app.get('/articles/:id', (req, res, next) => {
   const id = req.params.id;
-  console.log('Fetching: ', id);
-  res.send(articles[id]);
+  Article.find(id, (err, article) => {
+    if (err) return next(err);
+    res.send(article);
+  });
 });
 
 // POST HTTP method to store a new article
@@ -40,9 +44,10 @@ app.post('/articles', (req, res, next) => {
 // DELETE HTTP method to delete a single stored article
 app.delete('/articles/:id', (req, res, next) => {
   const id = req.params.id;
-  console.log('Deleting: ', id);
-  delete articles[id];
-  res.send({ message: 'Delete' });
+  Article.delete(id, (err) => {
+    if (err) return next(err);
+    res.send({ 'message' : `Deleted article with id : ${id}` });
+  });
 });
 
 app.listen(app.get('port'), () => {
