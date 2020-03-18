@@ -19,11 +19,25 @@ app.use(bodyParser.json());
 // Support form encoded bodies
 app.use(bodyParser.urlencoded({ extended: true}));
 
+// Serve static bootstrap CSS
+app.use(
+  '/css/bootstrap.css',
+  express.static('node_modules/bootstrap/dist/css/bootstrap.css')
+);
+
 // GET HTTP method to retrieve all stored articles
 app.get('/articles', (req, res, next) => {
   Article.all((err, articles) => {
     if (err) return next(err);
-    res.send(articles);
+
+    res.format({
+      html: () => {
+        res.render('articles.ejs', { articles });
+      },
+      json: () => {
+        res.send(articles);
+      }
+      });
   });
 });
 
@@ -32,7 +46,14 @@ app.get('/articles/:id', (req, res, next) => {
   const id = req.params.id;
   Article.find(id, (err, article) => {
     if (err) return next(err);
-    res.send(article);
+    res.format({
+      html: () => {
+        res.render('article.ejs', { article })
+      },
+      json: () => {
+        res.send(article);
+      }
+    });
   });
 });
 
